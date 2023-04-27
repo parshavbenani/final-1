@@ -1,0 +1,65 @@
+ [HttpPost]
+        public IActionResult AddCourse(int id,Course obj)
+        {
+            if(id != 0)
+            {
+                if(obj != null)
+                {
+                    var StuCou = _dbContext.studentCourses.Where(x=>x.StudentId==id).ToList();  //get list of course id that asign to student
+
+                    foreach (var value in StuCou)                                    
+                    {
+                        var Cou = _dbContext.courses.Where(x => x.CourseId == value.CourseId);  // get course detail by the course id
+
+                        foreach (var value1 in Cou)
+                        {
+                            if(value1.CourseName == obj.CourseName)                            //Check Course name exist or not
+                            {
+                                TempData["error"] = "Course Already Exist";
+                                return View();
+                            }
+                        }                     
+                    }
+                    
+                    Course data = new Course()
+                    {
+                        CourseName = obj.CourseName,
+                        CoursePrice = obj.CoursePrice
+                    };
+                    _dbContext.Add(data);
+                    _dbContext.SaveChanges();
+                    StudentCourses data1 = new StudentCourses()
+                    {
+                        StudentId = id,
+                        CourseId = data.CourseId,
+                    };
+                    _dbContext.Add(data1);
+                    _dbContext.SaveChanges();
+                    TempData["success"] = "Course Added Successfully";
+                    return RedirectToAction("Index", "Admin");
+                }              
+            }
+            return View();
+        }
+--------------------------------------------
+                var StuCou = _dbContext.studentCourses.Where(x => x.CourseId == id).ToList();  
+
+                foreach (var value in StuCou)
+                {
+                    var Cou = _dbContext.studentCourses.Where(x=>x.StudentId == value.StudentId).ToList();
+
+                    foreach(var value1 in Cou)
+                    {
+                         var Cou1 = _dbContext.courses.Where(x => x.CourseId == value1.CourseId).ToList();
+                    
+                        foreach (var value2 in Cou1)
+                        {
+                            if (value2.CourseName == obj.CourseName)                          
+                            {
+                                TempData["error"] = "Course Already Exist";
+                                return View();
+                            }
+                        }
+                    }                              
+                    
+                }
